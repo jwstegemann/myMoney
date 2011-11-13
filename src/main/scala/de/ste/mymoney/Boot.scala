@@ -9,12 +9,11 @@ import de.ste.mymoney.services._
 
 class Boot {
  
-  val mainModule = new HelloService {
-	println("Bin da!")
+  val mainModule = new ExpenseService {
     // bake your module cake here
   }
 
-  val httpService = actorOf(new HttpService(mainModule.helloService))
+  val httpService = actorOf(new HttpService(mainModule.expenseService))
   val rootService = actorOf(new RootService(httpService))
 
   Supervisor(

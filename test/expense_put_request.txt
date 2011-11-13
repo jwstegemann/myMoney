@@ -1,0 +1,1 @@
+{"requestUrl":"http://localhost:8080/expense","requestMethod":"PUT","requestBody":"{\u000a  \"name\": \"testname47\",\u000a  \"value\": 47.11\u000a}","headers":["Content-Type","application/json"]}

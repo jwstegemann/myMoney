@@ -19,6 +19,6 @@ libraryDependencies ++= Seq(
 	"ch.qos.logback" % "logback-classic" % "0.9.29" % "container",
 	"cc.spray" % "spray-server" % "0.8.0-RC3" % "compile",
 	"cc.spray.json" %% "spray-json" % "1.0.1" % "compile",
-	"org.glassfish" % "javax.servlet" % "3.0" % "provided"	
+	"org.glassfish" % "javax.servlet" % "3.0" % "provided",
+	"com.mongodb.casbah" % "casbah_2.9.0-1" % "2.1.5.0"
 )
-

@@ -26,7 +26,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 
 					expensesCollection.findOne(query) match {
 						// TODO: we need to externalize and maybe even generalize this
-						case Some(expenseDbo) => _.complete(Expense(expenseDbo.getAs[String]("name").getOrElse(""),expenseDbo.getAs[Double]("value").getOrElse(0.0)))
+						case Some(expenseDbo) => _.complete(Expense(Some(expenseDbo.as[ObjectId]("_id").toString()), expenseDbo.getAs[String]("name").getOrElse(""),expenseDbo.getAs[Double]("value").getOrElse(0.0)))
 						case None => _.complete(HttpResponse(NotFound,"expense with id " + id + " does not exist."))
 					}
 				}
@@ -58,8 +58,11 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		} ~
 		path("expenses") {
 			get { ctx =>
-				val now = new Date().toString();
-				ctx.complete(Result(0,"Liste " + now));
+				val cursor = expensesCollection.find();
+				
+				val list = for { expenseDbo <- cursor.toSeq } yield Expense(Some(expenseDbo.as[ObjectId]("_id").toString()), expenseDbo.getAs[String]("name").getOrElse(""),expenseDbo.getAs[Double]("value").getOrElse(0.0))
+				
+				ctx.complete(list);
 			}
 		}
 	}

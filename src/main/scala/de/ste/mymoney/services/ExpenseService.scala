@@ -4,51 +4,63 @@ import cc.spray._
 import cc.spray.json._
 import typeconversion.SprayJsonSupport
 import cc.spray.directives._
+import cc.spray.http._
+import cc.spray.http.StatusCodes._
 
 import de.ste.mymoney.domain._
 import de.ste.mymoney.protocol.MyMoneyJsonProtocol._
 
 import com.mongodb.casbah.Imports._
+import java.util.Date
 
 trait ExpenseService extends Directives with SprayJsonSupport {
 
-  val mongoCon = MongoConnection("localhost")
-  val expensesCollection : MongoCollection = mongoCon("test")("expenses")
-  
-  val expenseService = {
-	path("expense" / Remaining) { id =>
-		get {
-				val query : DBObject = MongoDBObject("_id" -> id)
+	val mongoCon = MongoConnection("localhost")
+	val expensesCollection : MongoCollection = mongoCon("test")("expenses")
+	
+	val expenseService = {
+		pathPrefix("expense") {
+			get {
+				path(Remaining) { id =>
+					val query : DBObject = MongoDBObject("_id" -> new ObjectId(id))
 
-				// FIXME: test for empty value of the option here
-				//val expenseDbo : MongoDBObject = expensesCollection.findOne(query).getOrElse().asInstanceOf[MongoDBObject]
+					expensesCollection.findOne(query) match {
+						// TODO: we need to externalize and maybe even generalize this
+						case Some(expenseDbo) => _.complete(Expense(expenseDbo.getAs[String]("name").getOrElse(""),expenseDbo.getAs[Double]("value").getOrElse(0.0)))
+						case None => _.complete(HttpResponse(NotFound,"expense with id " + id + " does not exist."))
+					}
+				}
+			} ~
+			(put & path("")) {
+				content(as[Expense]) { expense =>
+					// TODO: we need to externalize and maybe even generalize this
+					val dbo = MongoDBObject.newBuilder
+						dbo += "name" -> expense.name
+						dbo += "value" -> expense.value	
 				
-				val expenseDbo : MongoDBObject = expensesCollection.findOne(query).getOrElse().asInstanceOf[MongoDBObject]
-				
-				// TODO: we need to externalize and maybe even generalize this
-				_.complete(Expense(expenseDbo.getAs[String]("name").getOrElse(""),expenseDbo.getAs[Double]("value").getOrElse(0.0)))
-				
-				//_.complete(Expense(id,0.0))
-		}
-	} ~
-	path("expense") {
-		put {
-			content(as[Expense]) { expense =>
-				
-				// TODO: we need to externalize and maybe even generalize this
-				val dbo = MongoDBObject.newBuilder
-					dbo += "name" -> expense.name
-					dbo += "value" -> expense.value	
-				
-				expensesCollection += dbo.result
+					expensesCollection += dbo.result
 
-				_.complete(Result(0,expense.name))
+					_.complete(HttpResponse(OK))
+				}
+			} ~
+			(post & path("")) {
+				content(as[Expense]) { expense =>
+					println("AAAAAAAAAAAAAAAA");
+					_.complete(Result(0,"update " + expense.name))
+				}
+			} ~
+			(delete & path("")) {
+				content(as[Expense]) { expense =>
+					println("AAAAAAAAAAAAAAAA");
+					_.complete(Result(0,"delete " + expense.name))
+				}
 			}
 		} ~
-		post {
-			_.complete(Result(0,""))
+		path("expenses") {
+			get { ctx =>
+				val now = new Date().toString();
+				ctx.complete(Result(0,"Liste " + now));
+			}
 		}
 	}
-  }
-  
 }

@@ -25,7 +25,6 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 					val query : DBObject = MongoDBObject("_id" -> new ObjectId(id))
 
 					expensesCollection.findOne(query) match {
-						// TODO: we need to externalize and maybe even generalize this
 						case Some(expenseDbo : BasicDBObject) => _.complete(expenseDbo : Expense)
 						case None => _.complete(HttpResponse(NotFound,"expense with id " + id + " does not exist."))
 					}
@@ -33,12 +32,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 			} ~
 			(put & path("")) {
 				content(as[Expense]) { expense =>
-					// TODO: we need to externalize and maybe even generalize this
-					val dbo = MongoDBObject.newBuilder
-						dbo += "name" -> expense.name
-						dbo += "value" -> expense.value	
-				
-					expensesCollection += dbo.result
+					expensesCollection += expense
 
 					_.complete(HttpResponse(OK))
 				}
@@ -59,9 +53,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		path("expenses") {
 			get { ctx =>
 				val cursor = expensesCollection.find();
-				
 				val list = for { expenseDbo <- cursor.toSeq } yield (expenseDbo : Expense)
-				
 				ctx.complete(list);
 			}
 		}

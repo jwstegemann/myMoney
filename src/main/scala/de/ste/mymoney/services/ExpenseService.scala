@@ -13,7 +13,11 @@ import de.ste.mymoney.protocol.MyMoneyJsonProtocol._
 import com.mongodb.casbah.Imports._
 import java.util.Date
 
+import com.mongodb.casbah.commons.conversions.scala._
+
 trait ExpenseService extends Directives with SprayJsonSupport {
+
+	RegisterJodaTimeConversionHelpers()
 
 	val mongoCon = MongoConnection("localhost")
 	val expensesCollection : MongoCollection = mongoCon("test")("expenses")
@@ -32,21 +36,23 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 			} ~
 			(put & path("")) {
 				content(as[Expense]) { expense =>
-					expensesCollection += expense
-
-					_.complete(HttpResponse(OK))
+				
+					expense.recurrence match {
+						case Expense.SINGLETON => saveSingletonExpense(expense,_)
+						case Expense.WEEKLY => saveRecurrentExpense(expense,_)
+						case missing : Int => (_ : RequestContext).complete(HttpResponse(BadRequest,"recurrence " + missing + " ist not available"))					}
 				}
 			} ~
 			(post & path("")) {
 				content(as[Expense]) { expense =>
 					println("AAAAAAAAAAAAAAAA");
-					_.complete(Result(0,"update " + expense.name))
+					_.complete(HttpResponse(OK))
 				}
 			} ~
 			(delete & path("")) {
 				content(as[Expense]) { expense =>
 					println("AAAAAAAAAAAAAAAA");
-					_.complete(Result(0,"delete " + expense.name))
+					_.complete(HttpResponse(OK))
 				}
 			}
 		} ~
@@ -58,4 +64,15 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 			}
 		}
 	}
+	
+	def saveSingletonExpense(expense : Expense, ctx : RequestContext) = {
+		expensesCollection += expense
+		ctx.complete(HttpResponse(OK))
+	}
+	
+	def saveRecurrentExpense(expense : Expense, ctx : RequestContext) = {
+		println("WEEKLY detected")
+		ctx.complete(HttpResponse(OK))
+	}
+
 }

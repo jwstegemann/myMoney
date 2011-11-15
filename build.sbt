@@ -20,5 +20,6 @@ libraryDependencies ++= Seq(
 	"cc.spray" % "spray-server" % "0.8.0-RC3" % "compile",
 	"cc.spray.json" %% "spray-json" % "1.0.1" % "compile",
 	"org.glassfish" % "javax.servlet" % "3.0" % "provided",
-	"com.mongodb.casbah" % "casbah_2.9.0-1" % "2.1.5.0"
+	"com.mongodb.casbah" % "casbah_2.9.0-1" % "2.1.5.0",
+	"org.scala-tools.time" % "time_2.9.0-1" % "0.5"
 )

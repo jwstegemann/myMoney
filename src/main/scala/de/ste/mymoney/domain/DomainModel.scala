@@ -5,6 +5,9 @@ import com.mongodb.BasicDBObject
 
 import org.scala_tools.time.Imports._
 
+import de.ste.mymoney.util.MyLocalDate
+import de.ste.mymoney.util.MyLocalDate._
+
 object Expense {
 	implicit def fromMongo(expenseDbo : DBObject) : Expense = {
 		Expense(
@@ -13,8 +16,8 @@ object Expense {
 			expenseDbo.getAs[Double]("value").getOrElse(0.0),
 			expenseDbo.getAs[Int]("recurrence").getOrElse(0),
 			expenseDbo.getAs[String]("description").getOrElse(""),
-			expenseDbo.as[DateTime]("from").toLocalDate(),
-			expenseDbo.as[DateTime]("to").toLocalDate()
+			expenseDbo.as[DateTime]("from"),
+			expenseDbo.getAs[DateTime]("to")
 		)
 	}
 	
@@ -24,8 +27,8 @@ object Expense {
 			dbo += "value" -> expense.value
 			dbo += "recurrence" -> expense.recurrence
 			dbo += "description" -> expense.description
-			dbo += "from" -> expense.from.toDateTimeAtStartOfDay(DateTimeZone.UTC)
-			dbo += "to" -> expense.from.toDateTimeAtStartOfDay(DateTimeZone.UTC)
+			dbo += "from" -> (expense.from : DateTime)
+			if (! expense.to.isEmpty) dbo += "to" -> (expense.to.get : DateTime)
 		dbo.result
 	}
 
@@ -45,7 +48,7 @@ case class Expense (
 	description : String,
 	//TODO: add tags
 	from : LocalDate,
-	to : LocalDate
+	to : Option[LocalDate]
 )
 
 /*

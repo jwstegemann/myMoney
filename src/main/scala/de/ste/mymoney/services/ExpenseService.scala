@@ -75,9 +75,9 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	}
 		
 	def analyze(request : AnalyzeRequest) = {
-		//FIXME: test, if time period is small enough (< 100 days?)
+		//FIXME: test if perios is narrow enough (<100 days?)
 	
-		val query : DBObject = "from" $gte request.startDate.toDateTimeAtStartOfDay(DateTimeZone.UTC) $lte request.endDate.toDateTimeAtStartOfDay(DateTimeZone.UTC)
+		val query : DBObject = "from" $gte (request.startDate : org.joda.time.DateTime) $lte (request.endDate : org.joda.time.DateTime)
 		
 		val mongoResult = expensesCollection.mapReduce(AnalyzeMapReduce.map, AnalyzeMapReduce.reduce, MapReduceInlineOutput, Some(query))
 		
@@ -100,7 +100,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 			}
 		}
 
-		//FIXME: Das müsste doch auch ohne Kopieren gehen, oder?
+		//FIXME: Das muesste doch auch ohne Kopieren gehen, oder?
 		analyzeResults.toArray
 	}
 	
@@ -110,7 +110,11 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	}
 	
 	def saveRecurrentExpense(expense : Expense, ctx : RequestContext) = {
-		println("WEEKLY detected")
+		
+	
+		//for (date <- expense.from) {
+		//}
+		
 		ctx.complete(HttpResponse(OK))
 	}
 

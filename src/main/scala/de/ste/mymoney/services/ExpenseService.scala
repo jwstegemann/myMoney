@@ -11,9 +11,11 @@ import de.ste.mymoney.domain._
 import de.ste.mymoney.protocol.MyMoneyJsonProtocol._
 
 import com.mongodb.casbah.Imports._
-import java.util.Date
-
 import com.mongodb.casbah.commons.conversions.scala._
+
+import org.scala_tools.time.Imports._
+import de.ste.mymoney.util.MyLocalDate._
+
 
 trait ExpenseService extends Directives with SprayJsonSupport {
 
@@ -62,6 +64,19 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 				val list = for { expenseDbo <- cursor.toSeq } yield (expenseDbo : Expense)
 				ctx.complete(list);
 			}
+		} ~
+		(path("analyze") & post) { 
+			content(as[AnalyzeRequest]) { request =>
+			
+				analyze(request)			
+				_.complete(HttpResponse(OK))
+			}
+		}
+	}
+		
+	def analyze(request : AnalyzeRequest) = {
+		for (date <- request.startDate until request.endDate) {
+			println(date)
 		}
 	}
 	

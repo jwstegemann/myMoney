@@ -47,3 +47,14 @@ case class Expense (
 	from : LocalDate,
 	to : LocalDate
 )
+
+case class AnalyzeRequest (
+	startSaldo : Double,
+	startDate : LocalDate,
+	endDate : LocalDate
+)
+
+case class AnalyzeResult (
+	date : LocalDate,
+	saldo : Double
+)

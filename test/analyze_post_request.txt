@@ -1,0 +1,1 @@
+{"requestUrl":"http://localhost:8080/analyze","requestMethod":"POST","requestBody":"{\u000a  \"startSaldo\": 10.0,\u000a  \"startDate\": \"2011-11-02\",\u000a  \"endDate\": \"2011-12-02\"\u000a}","headers":["Content-Type","application/json"]}

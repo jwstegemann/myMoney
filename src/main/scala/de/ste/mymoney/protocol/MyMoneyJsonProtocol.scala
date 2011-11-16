@@ -25,4 +25,6 @@ object MyMoneyJsonProtocol extends DefaultJsonProtocol {
   }
 
   implicit val expenseFormat = jsonFormat(Expense.apply, "id", "name", "value", "recurrence", "description", "from", "to")
+  implicit val analyzeRequestFormat = jsonFormat(AnalyzeRequest.apply, "startSaldo", "startDate", "endDate")
+  implicit val analyzeResultFormat = jsonFormat(AnalyzeResult.apply, "date", "saldo")
 }

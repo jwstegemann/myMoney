@@ -15,6 +15,8 @@ import com.mongodb.casbah.commons.conversions.scala._
 
 import org.scala_tools.time.Imports._
 import de.ste.mymoney.util.MyLocalDate._
+import scala.collection.mutable.ListBuffer
+
 
 
 trait ExpenseService extends Directives with SprayJsonSupport {
@@ -67,17 +69,39 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		} ~
 		(path("analyze") & post) { 
 			content(as[AnalyzeRequest]) { request =>
-			
-				analyze(request)			
-				_.complete(HttpResponse(OK))
+				_.complete(analyze(request))
 			}
 		}
 	}
 		
 	def analyze(request : AnalyzeRequest) = {
+		//FIXME: test, if time period is small enough (< 100 days?)
+	
+		val query : DBObject = "from" $gte request.startDate.toDateTimeAtStartOfDay(DateTimeZone.UTC) $lte request.endDate.toDateTimeAtStartOfDay(DateTimeZone.UTC)
+		
+		val mongoResult = expensesCollection.mapReduce(AnalyzeMapReduce.map, AnalyzeMapReduce.reduce, MapReduceInlineOutput, Some(query))
+		
+		var resultItem : Option[AnalyzeResult] =   if (mongoResult.hasNext) Some(mongoResult.next) else None
+		var saldo : Double = request.startSaldo
+		
+		val analyzeResults = new ListBuffer[AnalyzeResult]()
+		
 		for (date <- request.startDate until request.endDate) {
-			println(date)
+			if ((resultItem isEmpty) || (resultItem.get.date != date))
+			{
+				analyzeResults += AnalyzeResult(date,saldo)
+			}
+			else
+			{
+				saldo += resultItem.get.saldo
+				//TODO: hier spaeter die Buchungen hinzufuegen
+				analyzeResults += AnalyzeResult(date,saldo)
+				resultItem = if (mongoResult.hasNext) Some(mongoResult.next) else None
+			}
 		}
+
+		//FIXME: Das müsste doch auch ohne Kopieren gehen, oder?
+		analyzeResults.toArray
 	}
 	
 	def saveSingletonExpense(expense : Expense, ctx : RequestContext) = {

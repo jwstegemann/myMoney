@@ -48,11 +48,25 @@ case class Expense (
 	to : LocalDate
 )
 
+/*
+ * AnalyzeRequest and Result
+ */
 case class AnalyzeRequest (
 	startSaldo : Double,
 	startDate : LocalDate,
 	endDate : LocalDate
 )
+
+object AnalyzeResult {
+	implicit def fromMongo(analyzeDbo : DBObject) : AnalyzeResult = {
+		val value = analyzeDbo.as[DBObject]("value")
+	
+		AnalyzeResult(
+			analyzeDbo.as[DateTime]("_id").toLocalDate(),
+			value.getAs[Double]("saldo").getOrElse(32.0)
+		)
+	}
+}
 
 case class AnalyzeResult (
 	date : LocalDate,

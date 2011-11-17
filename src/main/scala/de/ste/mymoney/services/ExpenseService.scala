@@ -28,41 +28,43 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	val expensesCollection : MongoCollection = mongoCon("test")("expenses")
 	
 	val expenseService = {
-		pathPrefix("expense") {
-			get {
-				path(Remaining) { id =>
-					_.complete(load(id))
-				}
-			} ~
-			(put & path("")) {
-				content(as[Expense]) { expense =>
-					create(expense)
-					_.complete(HttpResponse(OK))
-				}
-			} ~
-			(post) {
-				path(Remaining) { id =>
+		pathPrefix("rest") {
+			pathPrefix("expense") {
+				get {
+					path(Remaining) { id =>
+						_.complete(load(id))
+					}
+				} ~
+				(put & path("")) {
 					content(as[Expense]) { expense =>
-						update(id, expense)
+						create(expense)
+						_.complete(HttpResponse(OK))
+					}
+				} ~
+				(post) {
+					path(Remaining) { id =>
+						content(as[Expense]) { expense =>
+							update(id, expense)
+							_.complete(HttpResponse(OK))
+						}
+					}
+				} ~
+				(delete) {
+					path(Remaining) { id =>
+						delete(id)
 						_.complete(HttpResponse(OK))
 					}
 				}
 			} ~
-			(delete) {
-				path(Remaining) { id =>
-					delete(id)
-					_.complete(HttpResponse(OK))
+			path("expenses") {
+				get {
+					_.complete(find());
 				}
-			}
-		} ~
-		path("expenses") {
-			get {
-				_.complete(find());
-			}
-		} ~
-		(path("analyze") & post) { 
-			content(as[AnalyzeRequest]) { request =>
-				_.complete(analyze(request))
+			} ~
+			(path("analyze") & post) { 
+				content(as[AnalyzeRequest]) { request =>
+					_.complete(analyze(request))
+				}
 			}
 		}
 	}

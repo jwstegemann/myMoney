@@ -75,7 +75,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	def create(expense : Expense) = {
 		expense.recurrence match {
 			case Expense.SINGLETON => saveSingletonExpense(expense)
-			case recurrence : Int => saveRecurrentExpense(expense, getRecurrentPeriod(recurrence))
+			case recurrence : Int => saveRecurrentExpense(expense)
 		}
 	}
 	
@@ -122,7 +122,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		}
 		else if (expense.recurrence != Expense.SINGLETON)
 		{
-			createRecurrentInstances(id, expense, getRecurrentPeriod(expense.recurrence))
+			createRecurrentInstances(id, expense)
 		}
 	}
 		
@@ -130,16 +130,6 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	/*
 	 * application-specific methods
 	 */
-		
-	def getRecurrentPeriod(value : Int) = {
-		value match {
-			case Expense.WEEKLY => MyLocalDate.oneWeek
-			case Expense.MONTHLY => MyLocalDate.oneMonth
-			case Expense.QUARTERLY => MyLocalDate.oneQuarter
-			case Expense.YEARLY => MyLocalDate.oneYear
-			case missing : Int => throw new Exception("recurrence " + missing + " ist not available")					
-		}
-	}
 		
 	def analyze(request : AnalyzeRequest) = {
 		//FIXME: test if perios is narrow enough (<100 days?)
@@ -177,21 +167,21 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		expenseDbo.as[ObjectId]("_id")
 	}
 	
-	def saveRecurrentExpense(expense : Expense, recurrencePeriod : Period) = {
+	def saveRecurrentExpense(expense : Expense) = {
 		//FIXME: automatische Fortschreibung von Eintragungen ohne Enddatum
 		//FIXME: add error handling via exception!
 	
 		val refObjectId = saveSingletonExpense(expense)
-		createRecurrentInstances(refObjectId.toString(), expense, recurrencePeriod)
+		createRecurrentInstances(refObjectId.toString(), expense)
 	}
 	
-	def createRecurrentInstances(refId : String, expense : Expense, recurrencePeriod : Period) = {
+	def createRecurrentInstances(refId : String, expense : Expense) = {
 		val endDate = expense.to match {
 			case Some(date) => date
 			case None => new LocalDate() + Period.years(5)
 		}
 	
-		for (date <- (expense.from + recurrencePeriod) until(endDate, recurrencePeriod)) {
+		for (date <- expense.from until(endDate, expense.recurrence, start=1)) {
 			//TODO: set refference
 			val clonedExpense = expense.copy(to = None, recurrence = 0, from = date, ref = Some(refId))
 			expensesCollection += clonedExpense

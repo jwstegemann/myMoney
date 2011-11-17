@@ -35,10 +35,6 @@ object Expense {
 	}
 
 	val SINGLETON = 0;
-	val WEEKLY = 52;
-	val MONTHLY = 12;
-	val QUARTERLY = 4;
-	val YEARLY = 1;
 }
 
 case class Expense (

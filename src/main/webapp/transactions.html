@@ -1,38 +1,130 @@
-<!doctype html>
-<html xmlns:ng="http://angularjs.org/">
-<head>
-	<meta charset="utf-8">
-	<title>myMoney 1.0</title>
-<!--	<link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css"> -->
-</head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>myMoney 1.0</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<body >
+    <!-- for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-	<div ng:controller="TransactionListCtrl">
-		<ul>
-			<li ng:repeat="transaction in transactions">
-				{{transaction.name}}
-				<p>{{transaction.from}}</p>
-			</li>
-		</ul>
-	</div>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 	
-	<div ng:controller="TransactionEditCtrl">
-		<form ng:submit="createTransaction()">
-		  <input type="text" name="name" size="35" placeholder="name of transaction" ng:required/><br/>
-		  <input type="text" name="value" size="35" placeholder="value" ng:required /><br/>
-		  <input type="text" name="from" size="35" placeholder="from" ng:required/><br/>
-		  <input type="text" name="to" size="35" placeholder="to" /><br/>
-		  <input type="text" name="description" size="35" placeholder="description" ng:required/><br/>
-		  <input type="text" name="recurrence" size="35" placeholder="recurrence" ng:required /><br/>
-		  <input type="submit" value="create">
-		</form>
+	
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+      }
+    </style>
+
+    <!-- fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	
+	<!-- scripts -->
+	<script type="text/javascript" src="lib/jquery-1.7.min.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-modal.js"></script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container">
+          <a class="brand" href="#">myMoney</a>
+          <ul class="nav">
+            <li class="active"><a href="#">home</a></li>
+            <li><a href="#about">about</a></li>
+            <li><a href="#contact">contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Example row of columns -->
+	  
+	  <h2>Your transactions</h2>
+	  <p>&nbsp;</p>
+	  
+	  <div class="row">
+		<div class="span16">
+		    <ul class="tabs">
+				<li class="active"><a href="#">single</a></li>
+				<li><a href="#">weekly</a></li>
+				<li><a href="#">monthly</a></li>
+				<li><a href="#">quarterly</a></li>
+				<li><a href="#">yearly</a></li>
+			</ul>
+		</div>
+	  </div>
+	  
+      <div class="row">
+		<div class="span16">
+		
+			<div class="well" style="padding: 8px 8px; text-align: right;">
+				<button class="btn primary" data-keyboard="true" data-backdrop="true" data-controls-modal="create-edit-modal">create new</button>
+				<a class="btn danger" href="#">delete</a>
+			</div>
+		
+			<table class="bordered-table">
+				<thead>
+					<tr>
+						<th>name</th>
+						<th>value</th>
+						<th>from-date</th>
+						<th>to-date</th>
+						<th>recurrence</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>test1</td>
+						<td>12.50</td>
+						<td>2011-01-01</td>
+						<td>2012-01-01</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<td>test2</td>
+						<td>21.50</td>
+						<td>2011-01-01</td>
+						<td></td>
+						<td>0</td>
+					</tr>
+				</tbody>
+			</table>
+		
+		
+		</div>
+      </div>
+
+      <footer>
+        <p>&copy; 2011 by jwstegemann@gmail.com</p>
+      </footer>
+
+    </div> <!-- /container -->
+	
+	<!-- popup to edit or create transactiony -->
+	<div id="create-edit-modal" class="modal hide fade" style="display: none;">
+		<div class="modal-header">
+			<a class="close" href="#">×</a>
+			<h3>Modal Heading</h3>
+		</div>
+		<div class="modal-body">
+			<p>One fine body…</p>
+		</div>
+		<div class="modal-footer">
+			<a class="btn primary" href="#">Primary</a>
+			<a class="btn secondary" href="#">Secondary</a>
+		</div>		
 	</div>
 
-	<script src="lib/angular-0.9.19.js" ng:autobind></script>
-	<script src="js/transactionListCtrl.js"></script>
-	<script src="js/transactionEditCtrl.js"></script>
-	
-</body>
-
+  </body>
 </html>

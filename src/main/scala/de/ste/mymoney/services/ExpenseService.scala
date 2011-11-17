@@ -163,14 +163,14 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	
 	def saveSingletonExpense(expenseDbo : DBObject) : ObjectId = {
 		val writeResult = expensesCollection += expenseDbo
-		//FIXME: add exceptionhandling
+		if (writeResult.getError != null) throw new Exception("Error writing recurrent instances")
+
 		expenseDbo.as[ObjectId]("_id")
 	}
 	
 	def saveRecurrentExpense(expense : Expense) = {
 		//FIXME: automatische Fortschreibung von Eintragungen ohne Enddatum
-		//FIXME: add error handling via exception!
-	
+			
 		val refObjectId = saveSingletonExpense(expense)
 		createRecurrentInstances(refObjectId.toString(), expense)
 	}
@@ -182,9 +182,12 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		}
 	
 		for (date <- expense.from until(endDate, expense.recurrence, start=1)) {
-			//TODO: set refference
 			val clonedExpense = expense.copy(to = None, recurrence = 0, from = date, ref = Some(refId))
-			expensesCollection += clonedExpense
+			
+			//TODO: write all instances in one row?
+			val writeResult = expensesCollection += clonedExpense
+			
+			if (writeResult.getError != null) throw new Exception("Error writing recurrent instances")
 		}
 	}
 

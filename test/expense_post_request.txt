@@ -1,0 +1,1 @@
+{"requestUrl":"http://localhost:8080/expense/4ec3ea0523b9788d97639c38","requestMethod":"POST","requestBody":"{\u000a  \"name\": \"updateTes2t\",\u000a  \"value\": 8.15,\u000a  \"from\": \"2011-11-30\",\u000a  \"description\": \"test\",\u000a  \"recurrence\": 0\u000a}","headers":["Content-Type","application/json"]}

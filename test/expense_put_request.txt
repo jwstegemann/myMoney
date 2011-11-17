@@ -1,1 +1,1 @@
-{"requestUrl":"http://localhost:8080/expense","requestMethod":"PUT","requestBody":"{\u000a  \"name\": \"testname47\",\u000a  \"value\": 47.11\u000a}","headers":["Content-Type","application/json"]}
+{"requestUrl":"http://localhost:8080/expense","requestMethod":"PUT","requestBody":"{\u000a  \"name\": \"testname47\",\u000a  \"value\": 47.11,\u000a  \"from\": \"2011-11-16\",\u000a  \"to\": \"2011-12-16\",\u000a  \"description\": \"\",\u000a  \"recurrence\": 51\u000a}","headers":["Content-Type","application/json"]}

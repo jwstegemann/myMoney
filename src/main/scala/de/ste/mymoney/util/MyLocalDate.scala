@@ -13,7 +13,7 @@ class MyLocalDate(val underlying : LocalDate)  {
 		while (!date.isAfter(endDate))
 		{
 			dates += date
-			date += MyLocalDate.oneDay
+			date += step
 		}
 
 		dates

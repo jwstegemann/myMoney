@@ -14,6 +14,7 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.conversions.scala._
 
 import org.scala_tools.time.Imports._
+import de.ste.mymoney.util.MyLocalDate
 import de.ste.mymoney.util.MyLocalDate._
 import scala.collection.mutable.ListBuffer
 
@@ -30,47 +31,113 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		pathPrefix("expense") {
 			get {
 				path(Remaining) { id =>
-					val query : DBObject = MongoDBObject("_id" -> new ObjectId(id))
-
-					expensesCollection.findOne(query) match {
-						case Some(expenseDbo : BasicDBObject) => _.complete(expenseDbo : Expense)
-						case None => _.complete(HttpResponse(NotFound,"expense with id " + id + " does not exist."))
-					}
+					_.complete(load(id))
 				}
 			} ~
 			(put & path("")) {
 				content(as[Expense]) { expense =>
-				
-					expense.recurrence match {
-						case Expense.SINGLETON => saveSingletonExpense(expense,_)
-						case Expense.WEEKLY => saveRecurrentExpense(expense,_)
-						case missing : Int => (_ : RequestContext).complete(HttpResponse(BadRequest,"recurrence " + missing + " ist not available"))					}
-				}
-			} ~
-			(post & path("")) {
-				content(as[Expense]) { expense =>
-					println("AAAAAAAAAAAAAAAA");
+					create(expense)
 					_.complete(HttpResponse(OK))
 				}
 			} ~
-			(delete & path("")) {
-				content(as[Expense]) { expense =>
-					println("AAAAAAAAAAAAAAAA");
+			(post) {
+				path(Remaining) { id =>
+					content(as[Expense]) { expense =>
+						update(id, expense)
+						_.complete(HttpResponse(OK))
+					}
+				}
+			} ~
+			(delete) {
+				path(Remaining) { id =>
+					delete(id)
 					_.complete(HttpResponse(OK))
 				}
 			}
 		} ~
 		path("expenses") {
-			get { ctx =>
-				val cursor = expensesCollection.find();
-				val list = for { expenseDbo <- cursor.toSeq } yield (expenseDbo : Expense)
-				ctx.complete(list);
+			get {
+				_.complete(find());
 			}
 		} ~
 		(path("analyze") & post) { 
 			content(as[AnalyzeRequest]) { request =>
 				_.complete(analyze(request))
 			}
+		}
+	}
+	
+	
+	/*
+	 * CRUD - methods
+	 */ 
+	
+	def create(expense : Expense) = {
+		expense.recurrence match {
+			case Expense.SINGLETON => saveSingletonExpense(expense)
+			case recurrence : Int => saveRecurrentExpense(expense, getRecurrentPeriod(recurrence))
+		}
+	}
+	
+	def load(id : String) : Expense = {
+		val query : DBObject = MongoDBObject("_id" -> new ObjectId(id))
+
+		expensesCollection.findOne(query) match {
+			case Some(expenseDbo : BasicDBObject) => expenseDbo
+			case None => throw new Exception("expense with id " + id + " does not exist.")
+		}
+	}
+	
+	def find() = {
+		val cursor = expensesCollection.find();
+		for { expenseDbo <- cursor.toSeq } yield (expenseDbo : Expense)
+	}
+	
+	def delete(id : String) = {
+		//TODO: check if das Element selbst ein ref hat!
+		val query : DBObject = $or(("_id" -> new ObjectId(id)), ("ref" -> id))
+		val writeResult  = expensesCollection.remove(query)
+		if (writeResult.getN == 0) throw new Exception("requested entity could not be deleted")
+	}
+	
+	def update(id : String, expense : Expense) = {
+		//TODO: check if das Element selbst ein ref hat!
+		
+		//delete all refs
+		val queryDeleteAll : DBObject = MongoDBObject("ref" -> id)
+		val writeResultDeleteRefs = expensesCollection.remove(queryDeleteAll)
+		
+		println("deleted refs: " + writeResultDeleteRefs.getN)
+		
+		//update entity
+		val queryUpdate : DBObject = MongoDBObject("_id" -> new ObjectId(id))
+		val writeResultUpdate = expensesCollection.update(queryUpdate,expense)
+
+		println("updated " + writeResultUpdate.getN)
+
+		//create new refs
+		if (writeResultUpdate.getN == 0)
+		{
+			throw new Exception("requested entity could not be updated")
+		}
+		else if (expense.recurrence != Expense.SINGLETON)
+		{
+			createRecurrentInstances(id, expense, getRecurrentPeriod(expense.recurrence))
+		}
+	}
+		
+		
+	/*
+	 * application-specific methods
+	 */
+		
+	def getRecurrentPeriod(value : Int) = {
+		value match {
+			case Expense.WEEKLY => MyLocalDate.oneWeek
+			case Expense.MONTHLY => MyLocalDate.oneMonth
+			case Expense.QUARTERLY => MyLocalDate.oneQuarter
+			case Expense.YEARLY => MyLocalDate.oneYear
+			case missing : Int => throw new Exception("recurrence " + missing + " ist not available")					
 		}
 	}
 		
@@ -104,18 +171,31 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		analyzeResults.toArray
 	}
 	
-	def saveSingletonExpense(expense : Expense, ctx : RequestContext) = {
-		expensesCollection += expense
-		ctx.complete(HttpResponse(OK))
+	def saveSingletonExpense(expenseDbo : DBObject) : ObjectId = {
+		val writeResult = expensesCollection += expenseDbo
+		//FIXME: add exceptionhandling
+		expenseDbo.as[ObjectId]("_id")
 	}
 	
-	def saveRecurrentExpense(expense : Expense, ctx : RequestContext) = {
-		
+	def saveRecurrentExpense(expense : Expense, recurrencePeriod : Period) = {
+		//FIXME: automatische Fortschreibung von Eintragungen ohne Enddatum
+		//FIXME: add error handling via exception!
 	
-		//for (date <- expense.from) {
-		//}
-		
-		ctx.complete(HttpResponse(OK))
+		val refObjectId = saveSingletonExpense(expense)
+		createRecurrentInstances(refObjectId.toString(), expense, recurrencePeriod)
+	}
+	
+	def createRecurrentInstances(refId : String, expense : Expense, recurrencePeriod : Period) = {
+		val endDate = expense.to match {
+			case Some(date) => date
+			case None => new LocalDate() + Period.years(5)
+		}
+	
+		for (date <- (expense.from + recurrencePeriod) until(endDate, recurrencePeriod)) {
+			//TODO: set refference
+			val clonedExpense = expense.copy(to = None, recurrence = 0, from = date, ref = Some(refId))
+			expensesCollection += clonedExpense
+		}
 	}
 
 }

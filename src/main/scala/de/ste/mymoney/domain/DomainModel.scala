@@ -17,7 +17,8 @@ object Expense {
 			expenseDbo.getAs[Int]("recurrence").getOrElse(0),
 			expenseDbo.getAs[String]("description").getOrElse(""),
 			expenseDbo.as[DateTime]("from"),
-			expenseDbo.getAs[DateTime]("to")
+			expenseDbo.getAs[DateTime]("to"),
+			expenseDbo.getAs[String]("ref")
 		)
 	}
 	
@@ -29,6 +30,7 @@ object Expense {
 			dbo += "description" -> expense.description
 			dbo += "from" -> (expense.from : DateTime)
 			if (! expense.to.isEmpty) dbo += "to" -> (expense.to.get : DateTime)
+			if (! expense.ref.isEmpty) dbo += "ref" -> expense.ref.get
 		dbo.result
 	}
 
@@ -48,7 +50,8 @@ case class Expense (
 	description : String,
 	//TODO: add tags
 	from : LocalDate,
-	to : Option[LocalDate]
+	to : Option[LocalDate],
+	ref : Option[String]
 )
 
 /*

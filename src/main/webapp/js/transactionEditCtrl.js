@@ -5,29 +5,30 @@
 function TransactionEditCtrl($xhr) {
 	var scope = this;
 	
+	this.dateRegExp = /^\d\d\d\d-\d\d-\d\d$/;
+	
 	//TODO: move to a main script
 	$xhr.defaults.headers.put['Content-Type']='application/json'
 
 	scope.createTransaction = function() {
-		var transaction = {
-				name: scope.name,
-				value: parseFloat(scope.value),
-				from: scope.from,
-				description: scope.description,
-				recurrence: parseInt(scope.recurrence)
-			}
-			
-		if (scope.to != "") transaction["to"] = scope.to;
+		
+		if (scope.tx.to == "") scope.tx.to = null;
 	
 		$xhr(
 			"PUT",
 			"rest/expense",
-			transaction,
+			scope.tx,
 			function(code, response) {
-				alert("done");
+				$("#create-edit-modal").modal("hide")
+				//TODO: Dafür sorgen, dass das auch wieder verschwindet!
+				showMsg("#save-success-msg");
+				
+				// reset model
+				scope.tx = undefined;
 			},
 			function(code, msg) {
-				alert("something went wrong");
+				$("#save-error-details").html(msg);
+				showMsg("#save-error-msg");
 			}
 		);
 	}

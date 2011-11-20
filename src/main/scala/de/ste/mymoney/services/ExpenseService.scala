@@ -91,7 +91,8 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	}
 	
 	def find() = {
-		val cursor = expensesCollection.find();
+		val query : DBObject = "ref" $exists false
+		val cursor = expensesCollection.find(query);
 		for { expenseDbo <- cursor.toSeq } yield (expenseDbo : Expense)
 	}
 	

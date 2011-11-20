@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -29,7 +29,13 @@
 	<!-- scripts -->
 	<script type="text/javascript" src="lib/jquery-1.7.min.js"></script>
 	<script type="text/javascript" src="lib/bootstrap-modal.js"></script>
-  </head>
+	<script type="text/javascript" src="lib/bootstrap-alerts.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-tabs.js"></script>
+
+	<script type="text/javascript" src="js/utils.js"></script>
+	<script type="text/javascript" src="js/transactions.js"></script>
+
+	</head>
 
   <body>
 
@@ -53,51 +59,52 @@
 	  <h2>Your transactions</h2>
 	  <p>&nbsp;</p>
 	  
+		<!-- messages -->
+		<div id="save-success-msg" class="alert-message success fade in" data-alert="alert" style="display: none;">
+			<p><strong>Well done!</strong> Your new transaction has been added.</p>
+		</div>
+	  
 	  <div class="row">
 		<div class="span16">
-		    <ul class="tabs">
-				<li class="active"><a href="#">single</a></li>
-				<li><a href="#">weekly</a></li>
-				<li><a href="#">monthly</a></li>
-				<li><a href="#">quarterly</a></li>
-				<li><a href="#">yearly</a></li>
+		    <ul id="facet-tabs" class="tabs" data-tabs="tabs"> 
+				<li class="active"><a href="#justonce">just once</a></li>
+				<li><a href="#weekly">weekly</a></li>
+				<li><a href="#monthly">monthly</a></li>
+				<li><a href="#quarterly">quarterly</a></li>
+				<li><a href="#yearly">yearly</a></li>
 			</ul>
 		</div>
 	  </div>
 	  
       <div class="row">
-		<div class="span16">
-		
+		<div class="span16" ng:controller="TransactionListCtrl">
+			
 			<div class="well" style="padding: 8px 8px; text-align: right;">
-				<button class="btn primary" data-keyboard="true" data-backdrop="true" data-controls-modal="create-edit-modal">create new</button>
-				<a class="btn danger" href="#">delete</a>
+				<button class="btn primary" data-keyboard="false" data-backdrop="static" data-controls-modal="create-edit-modal">create new</button>
+				<button class="btn danger" ng:click="deleteSelected()">delete</button>
+				<a id="abcdef" class="btn" href="#">update</a>
 			</div>
 		
-			<table class="bordered-table">
+			<table class="bordered-table zebra-striped">
 				<thead>
 					<tr>
+						<th></th>
 						<th>name</th>
 						<th>value</th>
 						<th>from-date</th>
-						<th>to-date</th>
 						<th>recurrence</th>
+						<th>to-date</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>test1</td>
-						<td>12.50</td>
-						<td>2011-01-01</td>
-						<td>2012-01-01</td>
-						<td>0</td>
-					</tr>
-					<tr>
-						<td>test2</td>
-						<td>21.50</td>
-						<td>2011-01-01</td>
-						<td></td>
-						<td>0</td>
-					</tr>
+					<tr ng:repeat="transaction in transactions">
+						<td style="text-align: center;"><input type="checkbox" class="transactionSelect" id="{{transaction.id}}"/></td>
+						<td>{{transaction.name}}</td>
+						<td>{{transaction.value | number:2}}</td>
+						<td>{{transaction.from}}</td>
+						<td>{{transaction.to}}</td>
+						<td>{{transaction.recurrence | recurrence}}</td>
+					</tr>				
 				</tbody>
 			</table>
 		
@@ -105,26 +112,88 @@
 		</div>
       </div>
 
-      <footer>
+      <footer class="footer">
         <p>&copy; 2011 by jwstegemann@gmail.com</p>
       </footer>
 
     </div> <!-- /container -->
 	
 	<!-- popup to edit or create transactiony -->
-	<div id="create-edit-modal" class="modal hide fade" style="display: none;">
+	<div id="create-edit-modal" class="modal hide fade" style="display: none;" ng:controller="TransactionEditCtrl">
 		<div class="modal-header">
-			<a class="close" href="#">×</a>
-			<h3>Modal Heading</h3>
+			<!-- <a class="close" href="#">Ã—</a> -->
+			<h3>Create New Transaction...</h3>
 		</div>
 		<div class="modal-body">
-			<p>One fine body…</p>
+			<div id="save-error-msg" class="alert-message error fade in" data-alert="alert" style="display: none; z-index: 100000;">
+				<p><strong>Holy guacamole!</strong> An error occured saving your transaction:<span id="save-error-details"></span></p>
+			</div>
+		
+			<form id="form-edit" ng:submit="createTransaction()">
+				<fieldset>
+					<div class="clearfix">
+						<label for="txName">name</label>
+						<div class="input">
+							<input id="txName" class="xlarge" type="text" size="30" name="tx.name" ng:required>
+						</div>
+					</div>
+					<div class="clearfix">
+						<label for="txValue">value</label>
+						<div class="input">
+							<input id="txValue" class="large" type="text" size="30" name="tx.value" ng:format="number" ng:required>
+						</div>
+					</div>
+					<div class="clearfix">
+						<label for="txRecurrence">recurrence</label>
+						<div class="input">
+							<select id="txRecurrence" name="tx.recurrence" ng:format="number" ng:required>
+								<option value="0">just once</option>
+								<option value="52">weekly</option>
+								<option value="12">monthly</option>
+								<option value="4">quarterly</option>
+								<option value="1">yearly</option>
+							</select>
+						</div>
+					</div>
+					<div class="clearfix">
+						<ng:switch on="tx.recurrence > 0">
+							<label for="txFrom" ng:switch-when="true">from</label>
+							<label for="txFrom" ng:switch-when="false">on</label>
+						</ng:switch>
+						<div class="input">
+							<input id="txFrom" class="small" type="text" size="30" name="tx.from" ng:validate="regexp:dateRegExp" ng:required>
+							<span>(yyyy-mm-dd)</span>
+						</div>
+					</div>
+					<ng:switch on="tx.recurrence > 0">
+						<div class="clearfix" ng:switch-when="true">
+							<label for="txTo">to</label>
+							<div class="input">
+								<input id="txTo" class="small" type="text" size="30" name="tx.to" ng:validate="regexp:dateRegExp">
+								<span>(yyyy-mm-dd)</span>
+							</div>
+						</div>
+					</ng:switch>
+					<div class="clearfix">
+						<label for="txDescription">description</label>
+						<div class="input">
+							<textarea id="txDescription" class="xlarge" rows="3" name="tx.description"></textarea>
+						</div>
+					</div>
+				</fieldset>
+			</form>
 		</div>
 		<div class="modal-footer">
-			<a class="btn primary" href="#">Primary</a>
-			<a class="btn secondary" href="#">Secondary</a>
-		</div>		
+			<a id="button-edit-save" class="btn primary">save</a>
+			<a id="button-edit-close" class="btn secondary" href="#">cancel</a>
+		</div>
+		</div>
 	</div>
 
+	<!-- load angular and controllers -->
+	<script src="lib/angular-0.9.19.js" ng:autobind></script>
+	<script src="js/transactionListCtrl.js"></script>
+	<script src="js/transactionEditCtrl.js"></script>
+	
   </body>
 </html>

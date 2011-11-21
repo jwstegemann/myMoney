@@ -51,6 +51,36 @@ case class Expense (
 )
 
 /*
+ * Balance
+ */
+object Balance {
+	implicit def fromMongo(balanceDbo : DBObject) : Balance = {
+		Balance(
+			Some(balanceDbo.as[ObjectId]("_id").toString()),
+			balanceDbo.as[DateTime]("date"),
+			balanceDbo.getAs[Double]("value").getOrElse(0.0),
+			balanceDbo.getAs[String]("description").getOrElse("")
+		)
+	}
+	
+	implicit def toMongo(balance : Balance) : DBObject = {
+		val dbo = MongoDBObject.newBuilder
+			dbo += "date" -> (balance.date : DateTime)
+			dbo += "value" -> balance.value
+			dbo += "description" -> balance.description
+		dbo.result
+	}
+}
+
+case class Balance (
+	id : Option[String],
+	date : LocalDate,
+	value : Double,
+	description : String
+)
+
+
+/*
  * AnalyzeRequest and Result
  */
 case class AnalyzeRequest (

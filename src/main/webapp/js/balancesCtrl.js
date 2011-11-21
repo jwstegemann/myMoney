@@ -1,6 +1,6 @@
-/* TransactionList Controllers */
+/* Balances Controller */
 
-function TransactionListCtrl($xhr) {
+function BalancesCtrl($xhr) {
 	//FIXME: Move to main script
 	$xhr.defaults.headers.put['Content-Type']='application/json'
 	$xhr.defaults.headers.post['Content-Type']='application/json'
@@ -12,20 +12,18 @@ function TransactionListCtrl($xhr) {
 	 */ 
 	this.dateRegExp = /^\d\d\d\d-\d\d-\d\d$/;
 
-	scope.update = function(query) {
-		if (query == undefined) query = scope.query
-		else scope.query = query
-		$xhr("GET", "rest/expenses/" + query, function(code, response) {
-			scope.transactions = response;
+	scope.update = function() {
+		$xhr("GET", "rest/balances", function(code, response) {
+			scope.balances = response;
 		});
 	};
    
 	scope.deleteSelected = function() {
-		$("input.transactionSelect:checked").each(function(index,value) {
+		$("input.balanceSelect:checked").each(function(index,value) {
 			var id = $(value).attr("id");
 			
 			$xhr( "DELETE", 
-				"rest/expense/" + id, 
+				"rest/balance/" + id, 
 				function(code, response) {
 					//FIXME: this should be done only once
 					//FIXME: show success-msg
@@ -38,38 +36,20 @@ function TransactionListCtrl($xhr) {
 	};
 	
 	scope.create = function() {
-		scope.tx = undefined;
-		scope.tx = {recurrence: 0, description: ""};
+		scope.bal = undefined;
+		//TODO: insert date from today
+		scope.bal = {description: ""};
 		$("#create-edit-modal").modal("show");
 	}
-	
-	scope.edit = function(id) {
-		$xhr(
-			"GET",
-			"rest/expense/" + id,
-			function(code, response) {
-				scope.tx = response;
-				$("#create-edit-modal").modal("show");
-			},
-			function(code, msg) {
-				$("#edit-error-details").html(msg);
-				showMsg("#edit-error-msg");
-			}
-		);
-	}
-	
-	scope.createTransaction = function() {
 		
-		if (scope.tx.to == "") scope.tx.to = null;
-	
-		// define if create or update
-		var method = (scope.tx.id != null)?"POST":"PUT";
-		var url = (scope.tx.id != null)?("rest/expense/" + scope.tx.id):"rest/expense";
+	scope.saveBalance = function() {
+		
+		if (scope.bal.to == "") scope.bal.to = null;
 	
 		$xhr(
-			method,
-			url,
-			scope.tx,
+			"PUT",
+			"rest/balance",
+			scope.bal,
 			function(code, response) {
 				$("#create-edit-modal").modal("hide");
 				showMsg("#save-success-msg");
@@ -85,11 +65,10 @@ function TransactionListCtrl($xhr) {
 	/*
 	 * init
 	 */
-	scope.query = "singleton";
 	scope.update();
 }
 
-TransactionListCtrl.$inject = ['$xhr'];
+BalancesCtrl.$inject = ['$xhr'];
 
 /*
  * init document
@@ -102,12 +81,6 @@ $(document).ready(function() {
 	
 	$("#button-edit-save").click(function() {
 		$('#form-edit').submit()
-	});
-	
-	
-	$("#abcdef").click(function() {
-		var test = angular.scope().$become(TransactionEditCtrl);	
-		var jshfdjsdhfjsdh ="222";
 	});
 	
 	$("#create-edit-modal").modal({

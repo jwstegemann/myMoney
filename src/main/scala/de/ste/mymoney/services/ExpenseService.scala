@@ -25,7 +25,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	RegisterJodaTimeConversionHelpers()
 
 	val mongoCon = MongoConnection("localhost")
-	val expensesCollection : MongoCollection = mongoCon("test")("expenses")
+	val expensesCollection : MongoCollection = mongoCon("myMoney")("transactions")
 	
 	val expenseService = {
 		pathPrefix("rest") {

@@ -9,18 +9,24 @@ import de.ste.mymoney.services._
 
 class Boot {
  
-  val mainModule = new ExpenseService {
+  val expenseModule = new ExpenseService {
     // bake your module cake here
   }
 
-  val httpService = actorOf(new HttpService(mainModule.expenseService))
-  val rootService = actorOf(new RootService(httpService))
+  val balanceModule = new BalanceService {
+    // bake your module cake here
+  }
+
+  val expenseHttpService = actorOf(new HttpService(expenseModule.expenseService))
+  val balanceHttpService = actorOf(new HttpService(balanceModule.balanceService))
+  val rootService = actorOf(new RootService(expenseHttpService, balanceHttpService))
 
   Supervisor(
     SupervisorConfig(
       OneForOneStrategy(List(classOf[Exception]), 3, 100),
       List(
-        Supervise(httpService, Permanent),
+        Supervise(expenseHttpService, Permanent),
+        Supervise(balanceHttpService, Permanent),
         Supervise(rootService, Permanent)
       )
     )

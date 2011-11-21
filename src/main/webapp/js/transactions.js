@@ -1,9 +1,5 @@
 $(document).ready(function() {
 
-    $("#facet-tabs").bind("change", function (e) {
-		alert(e.target);
-    });
-	
 	$("#button-edit-close").click(function() {
 		$('#create-edit-modal').modal('hide')
 	});
@@ -17,4 +13,11 @@ $(document).ready(function() {
 		var test = angular.scope().$become(TransactionEditCtrl);	
 		var jshfdjsdhfjsdh ="222";
 	});
+	
+	$("#create-edit-modal").modal({
+		keyboard: false,
+		backdrop: "static"
+    })
+	
+	initAngular();
 });

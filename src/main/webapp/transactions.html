@@ -12,6 +12,7 @@
     <![endif]-->
 
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/ste.css" rel="stylesheet">
 	
 	
     <style type="text/css">
@@ -37,7 +38,7 @@
 
 	</head>
 
-  <body>
+  <body ng:controller="TransactionListCtrl">
 
     <div class="topbar">
       <div class="fill">
@@ -52,7 +53,7 @@
       </div>
     </div>
 
-    <div class="container">
+    <div class="container" >
 
       <!-- Example row of columns -->
 	  
@@ -63,26 +64,35 @@
 		<div id="save-success-msg" class="alert-message success fade in" data-alert="alert" style="display: none;">
 			<p><strong>Well done!</strong> Your new transaction has been added.</p>
 		</div>
+		<div id="delete-success-msg" class="alert-message success fade in" data-alert="alert" style="display: none;">
+			<p><strong>Ok!</strong> Your transactions have been deleted.</p>
+		</div>
+		<div id="delete-error-msg" class="alert-message success fade in" data-alert="alert" style="display: none;">
+			<p><strong>Oh no!</strong> An error occured deleting the selected transactions.</p>
+		</div>
+		<div id="edit-error-msg" class="alert-message success fade in" data-alert="alert" style="display: none;">
+			<p><strong>I am sorry!</strong> The transaction you selected cannot be edited: <span id="edit-error-details"></span></p>
+		</div>
 	  
 	  <div class="row">
 		<div class="span16">
 		    <ul id="facet-tabs" class="tabs" data-tabs="tabs"> 
-				<li class="active"><a href="#justonce">just once</a></li>
-				<li><a href="#weekly">weekly</a></li>
-				<li><a href="#monthly">monthly</a></li>
-				<li><a href="#quarterly">quarterly</a></li>
-				<li><a href="#yearly">yearly</a></li>
+				<li class="active"><a ste:click="update('singleton')" href="#justonce">just once</a></li>
+				<li><a ste:click="update('weekly')" href="#weekly">weekly</a></li>
+				<li><a ste:click="update('monthly')" href="#monthly">monthly</a></li>
+				<li><a ste:click="update('quarterly')" href="#quarterly">quartery</a></li>
+				<li><a ste:click="update('yearly')" href="#yearly">yearly</a></li>
 			</ul>
 		</div>
 	  </div>
 	  
       <div class="row">
-		<div class="span16" ng:controller="TransactionListCtrl">
+		<div class="span16">
 			
 			<div class="well" style="padding: 8px 8px; text-align: right;">
-				<button class="btn primary" data-keyboard="false" data-backdrop="static" data-controls-modal="create-edit-modal">create new</button>
+				<button class="btn primary" ng:click="create()">create new</button>
 				<button class="btn danger" ng:click="deleteSelected()">delete</button>
-				<a id="abcdef" class="btn" href="#">update</a>
+				<button class="btn" ng:click="update()">update</button>
 			</div>
 		
 			<table class="bordered-table zebra-striped">
@@ -92,18 +102,19 @@
 						<th>name</th>
 						<th>value</th>
 						<th>from-date</th>
-						<th>recurrence</th>
 						<th>to-date</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr ng:repeat="transaction in transactions">
-						<td style="text-align: center;"><input type="checkbox" class="transactionSelect" id="{{transaction.id}}"/></td>
-						<td>{{transaction.name}}</td>
-						<td>{{transaction.value | number:2}}</td>
-						<td>{{transaction.from}}</td>
-						<td>{{transaction.to}}</td>
-						<td>{{transaction.recurrence | recurrence}}</td>
+						<td style="text-align: center; width: 20px"><input type="checkbox" class="transactionSelect" id="{{transaction.id}}" name="transaction.checked"/></td>
+						<td style="width: 350px" class="pointer" ng:click="edit(transaction.id)">{{transaction.name}}</td>
+						<td style="text-align: right" class="pointer" ng:click="edit(transaction.id)">{{transaction.value | number:2}}</td>
+						<td style="text-align: center" class="pointer" ng:click="edit(transaction.id)">{{transaction.from}}</td>
+						<td style="text-align: center" class="pointer"ng:click="edit(transaction.id)">{{transaction.to}}</td>
+						<!-- <td>{{transaction.recurrence | recurrence}}</td> -->
+						<!-- <td><a >edit</a></td> -->
+
 					</tr>				
 				</tbody>
 			</table>
@@ -119,7 +130,7 @@
     </div> <!-- /container -->
 	
 	<!-- popup to edit or create transactiony -->
-	<div id="create-edit-modal" class="modal hide fade" style="display: none;" ng:controller="TransactionEditCtrl">
+	<div id="create-edit-modal" class="modal hide fade" style="display: none;">
 		<div class="modal-header">
 			<!-- <a class="close" href="#">×</a> -->
 			<h3>Create New Transaction...</h3>

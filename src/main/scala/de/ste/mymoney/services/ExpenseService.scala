@@ -56,9 +56,11 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 					}
 				}
 			} ~
-			path("expenses") {
-				get {
-					_.complete(find());
+			pathPrefix("expenses") {
+				path(Remaining) { query =>
+					get {
+						_.complete(find(query));
+					}
 				}
 			} ~
 			(path("analyze") & post) { 
@@ -90,9 +92,19 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		}
 	}
 	
-	def find() = {
-		val query : DBObject = "ref" $exists false
-		val cursor = expensesCollection.find(query);
+	def find(queryString : String) = {
+		val queryExists : DBObject = "ref" $exists false
+		println("query: " + queryString)
+		val query = queryString match {
+			case "singleton" => MongoDBObject("recurrence" -> 0) ++ queryExists
+			case "weekly" => MongoDBObject("recurrence" -> 52) ++ queryExists
+			case "monthly" => MongoDBObject("recurrence" -> 12) ++ queryExists
+			case "quarterly" => MongoDBObject("recurrence" -> 4) ++ queryExists
+			case "yearly" => MongoDBObject("recurrence" -> 1) ++ queryExists
+			case _ => queryExists
+		}
+		
+		val cursor = expensesCollection.find(query)
 		for { expenseDbo <- cursor.toSeq } yield (expenseDbo : Expense)
 	}
 	

@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>myMoney 1.0 - balances</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/ste.css" rel="stylesheet">
+	
+	
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+      }
+    </style>
+
+    <!-- fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	
+	<!-- scripts -->
+	<script type="text/javascript" src="lib/jquery-1.7.min.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-modal.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-alerts.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-tabs.js"></script>
+	<script type="text/javascript" src="lib/dygraph-combined.js"></script>
+
+	<script type="text/javascript" src="js/utils.js"></script>
+
+	</head>
+
+  <body ng:controller="BalancesCtrl">
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container">
+          <a class="brand" href="#">myMoney</a>
+          <ul class="nav">
+            <li><a href="transactions.html">transactions</a></li>
+            <li><a href="#">balances</a></li>
+            <li class="active"><a href="analyze.html">analyze</a></li>
+            <li><a href="#about">about</a></li>
+            <li><a href="#contact">contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" >
+
+      <!-- Example row of columns -->
+	  
+	  <h2>Anlayze this...</h2>
+	  <p>&nbsp;</p>
+	  
+		<!-- messages -->
+		<div id="save-success-msg" class="alert-message success fade in" data-alert="alert" style="display: none;">
+			<p><strong>Well done!</strong> Your new balance has been added.</p>
+		</div>
+		
+	  
+	  
+      <div class="row">
+		<div class="span16">
+			
+			<div class="well" style="padding: 8px 8px; text-align: right;">
+				<button class="btn primary" ng:click="create()">create new</button>
+				<button class="btn danger" ng:click="deleteSelected()">delete</button>
+				<button class="btn" ng:click="update()">update</button>
+			</div>
+		
+			<div id="graphdiv" style="width: 920px;"></div>
+		
+		</div>
+      </div>
+
+      <footer class="footer">
+        <p>&copy; 2011 by jwstegemann@gmail.com</p>
+      </footer>
+
+    </div> <!-- /container -->
+	
+	
+
+	<!-- load angular and controllers -->
+	<script src="lib/angular-0.10.5.min.js" ng:autobind></script>
+	<script src="js/analyzeCtrl.js"></script>
+	
+  </body>
+</html>

@@ -17,9 +17,14 @@ class Boot {
     // bake your module cake here
   }
 
+  val analyzeModule = new AnalyzeService {
+    // bake your module cake here
+  }
+
   val expenseHttpService = actorOf(new HttpService(expenseModule.expenseService))
   val balanceHttpService = actorOf(new HttpService(balanceModule.balanceService))
-  val rootService = actorOf(new RootService(expenseHttpService, balanceHttpService))
+  val analyzeHttpService = actorOf(new HttpService(analyzeModule.analyzeService))
+  val rootService = actorOf(new RootService(expenseHttpService, balanceHttpService, analyzeHttpService))
 
   Supervisor(
     SupervisorConfig(
@@ -27,6 +32,7 @@ class Boot {
       List(
         Supervise(expenseHttpService, Permanent),
         Supervise(balanceHttpService, Permanent),
+        Supervise(analyzeHttpService, Permanent),
         Supervise(rootService, Permanent)
       )
     )

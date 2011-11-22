@@ -62,11 +62,6 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 						_.complete(find(query));
 					}
 				}
-			} ~
-			(path("analyze") & post) { 
-				content(as[AnalyzeRequest]) { request =>
-					_.complete(analyze(request))
-				}
 			}
 		}
 	}
@@ -145,36 +140,6 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	/*
 	 * application-specific methods
 	 */
-		
-	def analyze(request : AnalyzeRequest) = {
-		//FIXME: test if perios is narrow enough (<100 days?)
-	
-		val query : DBObject = "from" $gte (request.startDate : org.joda.time.DateTime) $lte (request.endDate : org.joda.time.DateTime)
-		
-		val mongoResult = expensesCollection.mapReduce(AnalyzeMapReduce.map, AnalyzeMapReduce.reduce, MapReduceInlineOutput, Some(query))
-		
-		var resultItem : Option[AnalyzeResult] =   if (mongoResult.hasNext) Some(mongoResult.next) else None
-		var saldo : Double = request.startSaldo
-		
-		val analyzeResults = new ListBuffer[AnalyzeResult]()
-		
-		for (date <- request.startDate until request.endDate) {
-			if ((resultItem isEmpty) || (resultItem.get.date != date))
-			{
-				analyzeResults += AnalyzeResult(date,saldo)
-			}
-			else
-			{
-				saldo += resultItem.get.saldo
-				//TODO: hier spaeter die Buchungen hinzufuegen
-				analyzeResults += AnalyzeResult(date,saldo)
-				resultItem = if (mongoResult.hasNext) Some(mongoResult.next) else None
-			}
-		}
-
-		//FIXME: Das muesste doch auch ohne Kopieren gehen, oder?
-		analyzeResults.toArray
-	}
 	
 	def saveSingletonExpense(expenseDbo : DBObject) : ObjectId = {
 		val writeResult = expensesCollection += expenseDbo

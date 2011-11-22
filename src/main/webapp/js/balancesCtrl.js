@@ -42,7 +42,7 @@ function BalancesCtrl($xhr) {
 		$("#create-edit-modal").modal("show");
 	}
 		
-	scope.saveBalance = function() {
+	scope.save = function() {
 		
 		if (scope.bal.to == "") scope.bal.to = null;
 	
@@ -80,7 +80,12 @@ $(document).ready(function() {
 	});
 	
 	$("#button-edit-save").click(function() {
-		$('#form-edit').submit()
+		if ($(this).attr("disabled") == "disabled") {
+			showMsg("#invalid-error-msg");
+		}
+		else {
+			$('#form-edit').submit()
+		}
 	});
 	
 	$("#create-edit-modal").modal({

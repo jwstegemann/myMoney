@@ -34,11 +34,11 @@
 	<script type="text/javascript" src="lib/bootstrap-tabs.js"></script>
 
 	<script type="text/javascript" src="js/utils.js"></script>
-
-	</head>
+	
+  </head>
 
   <body ng:controller="TransactionListCtrl">
-
+  
     <div class="topbar">
       <div class="fill">
         <div class="container">
@@ -118,9 +118,7 @@
 
 					</tr>				
 				</tbody>
-			</table>
-		
-		
+			</table>		
 		</div>
       </div>
 
@@ -137,28 +135,31 @@
 			<h3>Create New Transaction...</h3>
 		</div>
 		<div class="modal-body">
+			<div id="invalid-error-msg" class="alert-message error fade in" data-alert="alert" style="display: none; z-index: 100000;">
+				<p><strong>I am sorry!</strong> Your content is invalid. Please correct it before saving.</p>
+			</div>
 			<div id="save-error-msg" class="alert-message error fade in" data-alert="alert" style="display: none; z-index: 100000;">
 				<p><strong>Holy guacamole!</strong> An error occured saving your transaction:<span id="save-error-details"></span></p>
 			</div>
 		
-			<form id="form-edit" ng:submit="createTransaction()">
+			<form id="form-edit" ng:submit="save()" name="formEdit">
 				<fieldset>
 					<div class="clearfix">
 						<label for="txName">name</label>
 						<div class="input">
-							<input id="txName" class="xlarge" type="text" size="30" name="tx.name" ng:required>
+							<input id="txName" class="xlarge" type="text" size="30" ng:model="tx.name" name="inputName" required />
 						</div>
 					</div>
 					<div class="clearfix">
 						<label for="txValue">value</label>
 						<div class="input">
-							<input id="txValue" class="large" type="text" size="30" name="tx.value" ng:format="number" ng:required>
+							<input id="txValue" class="large" type="number" min="-10000000" max="10000000" size="30" ng:model="tx.value" name="inputValue" required/>
 						</div>
 					</div>
 					<div class="clearfix">
 						<label for="txRecurrence">recurrence</label>
 						<div class="input">
-							<select id="txRecurrence" name="tx.recurrence" ng:format="number" ng:required>
+							<select id="txRecurrence" ng:model="tx.recurrence" ng:format="number" name="selectRecurrence">
 								<option value="0">just once</option>
 								<option value="52">weekly</option>
 								<option value="12">monthly</option>
@@ -173,7 +174,7 @@
 							<label for="txFrom" ng:switch-when="false">on</label>
 						</ng:switch>
 						<div class="input">
-							<input id="txFrom" class="small" type="text" size="30" name="tx.from" ng:validate="regexp:dateRegExp" ng:required>
+							<input id="txFrom" class="small" type="text" size="30" ng:model="tx.from" ng:pattern="dateRegExp" name="inputFrom" required/>
 							<span>(yyyy-mm-dd)</span>
 						</div>
 					</div>
@@ -181,7 +182,7 @@
 						<div class="clearfix" ng:switch-when="true">
 							<label for="txTo">to</label>
 							<div class="input">
-								<input id="txTo" class="small" type="text" size="30" name="tx.to" ng:validate="regexp:dateRegExp">
+								<input id="txTo" class="small" type="text" size="30" ng:model="tx.to" ng:pattern="regexp:dateRegExp" name="inputTo" />
 								<span>(yyyy-mm-dd)</span>
 							</div>
 						</div>
@@ -189,21 +190,24 @@
 					<div class="clearfix">
 						<label for="txDescription">description</label>
 						<div class="input">
-							<textarea id="txDescription" class="xlarge" rows="3" name="tx.description"></textarea>
+							<textarea id="txDescription" class="xlarge" rows="3" ng:model="tx.description" name="textareaDescription"></textarea>
 						</div>
 					</div>
 				</fieldset>
 			</form>
+			<!-- <tt>is Valid: {{formEdit.$valid}}</tt>
+			<tt>errors: {{formEdit.$error}}</tt> -->
 		</div>
 		<div class="modal-footer">
-			<a id="button-edit-save" class="btn primary">save</a>
+			<a id="button-edit-save" class="btn primary" disabled="{{!formEdit.$valid}}">save</a>
 			<a id="button-edit-close" class="btn secondary" href="#">cancel</a>
 		</div>
 		</div>
 	</div>
 
 	<!-- load angular and controllers -->
-	<script src="lib/angular-0.9.19.js" ng:autobind></script>
+	<script src="lib/angular-0.10.5.min.js" ng:autobind></script>
 	<script src="js/transactionListCtrl.js"></script>
+	
   </body>
 </html>

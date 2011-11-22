@@ -116,44 +116,49 @@
 			<h3>Create New Transaction...</h3>
 		</div>
 		<div class="modal-body">
+			<div id="invalid-error-msg" class="alert-message error fade in" data-alert="alert" style="display: none; z-index: 100000;">
+				<p><strong>I am sorry!</strong> Your content is invalid. Please correct it before saving.</p>
+			</div>
 			<div id="save-error-msg" class="alert-message error fade in" data-alert="alert" style="display: none; z-index: 100000;">
 				<p><strong>Terrible!</strong> An error occured saving your balance:<span id="save-error-details"></span></p>
 			</div>
 		
-			<form id="form-edit" ng:submit="saveBalance()">
+			<form id="form-edit" ng:submit="save()" name="formEdit">
 				<fieldset>
 
 				<div class="clearfix">
 					<label for="balDate">date</label>
 					<div class="input">
-						<input id="balDate" class="small" type="text" size="30" name="bal.date" ng:validate="regexp:dateRegExp" ng:required>
+						<input id="balDate" class="small" type="text" size="30" ng:model="bal.date" name="inputDate" ng:pattern="dateRegExp" required />
 						<span>(yyyy-mm-dd)</span>
 					</div>
 				</div>
 				<div class="clearfix">
 						<label for="balValue">value</label>
 						<div class="input">
-							<input id="balValue" class="large" type="text" size="30" name="bal.value" ng:format="number" ng:required>
+							<input id="balValue" class="large" type="number" size="30" ng:model="bal.value" name="inputValue" min="-100000000" max="100000000" required />
 						</div>
 					</div>
 					<div class="clearfix">
 						<label for="balDescription">description</label>
 						<div class="input">
-							<textarea id="balDescription" class="xlarge" rows="3" name="bal.description"></textarea>
+							<textarea id="balDescription" class="xlarge" rows="3" ng:model="bal.description" name="textareaDescription"></textarea>
 						</div>
 					</div>
 				</fieldset>
 			</form>
+			<!-- <tt>is Valid: {{formEdit.$valid}}</tt>
+			<tt>errors: {{formEdit.$error}}</tt> -->
 		</div>
 		<div class="modal-footer">
-			<a id="button-edit-save" class="btn primary">save</a>
+			<a id="button-edit-save" class="btn primary" disabled="{{!formEdit.$valid}}">save</a>
 			<a id="button-edit-close" class="btn secondary" href="#">cancel</a>
 		</div>
 		</div>
 	</div>
 
 	<!-- load angular and controllers -->
-	<script src="lib/angular-0.9.19.js" ng:autobind></script>
+	<script src="lib/angular-0.10.5.min.js" ng:autobind></script>
 	<script src="js/balancesCtrl.js"></script>
 	
   </body>

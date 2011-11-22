@@ -1,0 +1,31 @@
+	<script src="lib/angular-0.9.19.js" ng:autobind></script>
+
+	<script type="text/javascript" src="lib/jquery-1.7.min.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-modal.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-alerts.js"></script>
+	<script type="text/javascript" src="lib/bootstrap-tabs.js"></script>
+
+	<script type="text/javascript" src="js/utils.js"></script>
+
+
+<!-- AngularJS Example Code: -->
+
+<script>
+  function Ctrl() {
+  }
+</script>
+<div ng:controller="Ctrl">
+  <form name="myForm">
+    Number: <input type="number" name="input" ng:model="value"
+                       min="-99" max="99" required>
+    <span class="error" ng:show="myForm.list.$error.REQUIRED">
+      Required!</span>
+    <span class="error" ng:show="myForm.list.$error.NUMBER">
+      Not valid number!</span>
+  </form>
+  <tt>value = {{value}}</tt><br/>
+  <tt>myForm.input.$valid = {{myForm.input.$valid}}</tt><br/>
+  <tt>myForm.input.$error = {{myForm.input.$error}}</tt><br/>
+  <tt>myForm.$valid = {{myForm.$valid}}</tt><br/>
+  <tt>myForm.$error.REQUIRED = {{!!myForm.$error.REQUIRED}}</tt><br/>
+</div>

@@ -58,10 +58,13 @@ function TransactionListCtrl($xhr) {
 		);
 	}
 	
-	scope.createTransaction = function() {
+	scope.save = function() {
 		
+		console.log(scope.tx);
+		
+		// optional value
 		if (scope.tx.to == "") scope.tx.to = null;
-	
+		
 		// define if create or update
 		var method = (scope.tx.id != null)?"POST":"PUT";
 		var url = (scope.tx.id != null)?("rest/expense/" + scope.tx.id):"rest/expense";
@@ -101,7 +104,12 @@ $(document).ready(function() {
 	});
 	
 	$("#button-edit-save").click(function() {
-		$('#form-edit').submit()
+		if ($(this).attr("disabled") == "disabled") {
+			showMsg("#invalid-error-msg");
+		}
+		else {
+			$('#form-edit').submit()
+		}
 	});
 	
 	

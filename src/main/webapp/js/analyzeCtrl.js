@@ -1,4 +1,4 @@
-/* Balances Controller */
+/* Analyze Controller */
 
 function AnalyzeCtrl($xhr) {
 }

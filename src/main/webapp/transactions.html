@@ -159,12 +159,7 @@
 					<div class="clearfix">
 						<label for="txRecurrence">recurrence</label>
 						<div class="input">
-							<select id="txRecurrence" ng:model="tx.recurrence" ng:format="number" name="selectRecurrence">
-								<option value="0">just once</option>
-								<option value="52">weekly</option>
-								<option value="12">monthly</option>
-								<option value="4">quarterly</option>
-								<option value="1">yearly</option>
+							<select id="txRecurrence" ng:model="tx.recurrence" name="selectRecurrence" ng:options="o.value as o.key for o in recurrences">
 							</select>
 						</div>
 					</div>

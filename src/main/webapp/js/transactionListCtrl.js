@@ -11,6 +11,14 @@ function TransactionListCtrl($xhr) {
 	 * Validation expressions
 	 */ 
 	this.dateRegExp = /^\d\d\d\d-\d\d-\d\d$/;
+	
+	scope.recurrences = [
+      {value:0, key: "just once"},
+      {value:52, key: "weekly"},
+      {value:12, key: "monthly"},
+      {value:4, key: "quarterly"},
+      {value:1, key: "yearly"}
+    ];
 
 	scope.update = function(query) {
 		if (query == undefined) query = scope.query
@@ -39,7 +47,7 @@ function TransactionListCtrl($xhr) {
 	
 	scope.create = function() {
 		scope.tx = undefined;
-		scope.tx = {recurrence: 0, description: ""};
+		scope.tx = {recurrence: 0, description: "", value: 0.0};
 		$("#create-edit-modal").modal("show");
 	}
 	

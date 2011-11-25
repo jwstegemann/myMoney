@@ -87,7 +87,7 @@ trait ExpenseService extends Directives with SprayJsonSupport { this: MongoCompo
 	
 	private def find(queryString : String) = {
 		val queryExists : DBObject = "ref" $exists false
-		println("query: " + queryString)
+//		println("query: " + queryString)
 		val query = queryString match {
 			case "singleton" => MongoDBObject("recurrence" -> 0) ++ queryExists
 			case "weekly" => MongoDBObject("recurrence" -> 52) ++ queryExists
@@ -115,13 +115,13 @@ trait ExpenseService extends Directives with SprayJsonSupport { this: MongoCompo
 		val queryDeleteAll : DBObject = MongoDBObject("ref" -> id)
 		val writeResultDeleteRefs = expensesCollection.remove(queryDeleteAll)
 		
-		println("deleted refs: " + writeResultDeleteRefs.getN)
+//		println("deleted refs: " + writeResultDeleteRefs.getN)
 		
 		//update entity
 		val queryUpdate : DBObject = MongoDBObject("_id" -> new ObjectId(id))
 		val writeResultUpdate = expensesCollection.update(queryUpdate,expense)
 
-		println("updated " + writeResultUpdate.getN)
+//		println("updated " + writeResultUpdate.getN)
 
 		//create new refs
 		if (writeResultUpdate.getN == 0)

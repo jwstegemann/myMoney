@@ -44,8 +44,6 @@ class MyLocalDate(val underlying : LocalDate)  {
 				case value : Int => throw new Exception(BAD_RECURRENCE_MSG)
 			}
 
-			println("i: " + i)
-			
 			dates += underlying + period
 		}
 

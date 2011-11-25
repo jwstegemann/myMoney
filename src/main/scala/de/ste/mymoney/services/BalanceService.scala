@@ -70,6 +70,9 @@ trait BalanceService extends Directives with SprayJsonSupport {
 	 */ 
 	
 	def create(balance : Balance) = {
+		// delete old instances here
+		// schreibe die regelmaessigen Zahlungen bis datum+5Jahre fort
+	
 		val writeResult = balancesCollection += balance
 		if (writeResult.getError != null) throw new Exception("error writing balance")
 	}

@@ -74,6 +74,7 @@ BalancesCtrl.$inject = ['$xhr'];
  * init document
  */
 $(document).ready(function() {
+	$("body").css("display", "none");
 
 	$("#button-edit-close").click(function() {
 		$('#create-edit-modal').modal('hide')
@@ -94,4 +95,6 @@ $(document).ready(function() {
     })
 	
 	initAngular();
+	
+    $("body").fadeIn();
 });

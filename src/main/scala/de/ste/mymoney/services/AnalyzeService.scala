@@ -17,6 +17,8 @@ import org.scala_tools.time.Imports._
 import de.ste.mymoney.util.MyLocalDate
 import de.ste.mymoney.util.MyLocalDate._
 import scala.collection.mutable.ListBuffer
+import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.DateTime
 
 
 
@@ -34,6 +36,8 @@ trait AnalyzeService extends Directives {
 		}
 	}
 	
+	val dtf = ISODateTimeFormat.date();
+	
 	def analyze() = {
 		val latestBalanceCursor = balancesCollection.find().sort(MongoDBObject("date" -> -1))
 		if (!latestBalanceCursor.hasNext) throw new Exception("no balance defined yet.")
@@ -41,35 +45,18 @@ trait AnalyzeService extends Directives {
 			
 		val startDate = new org.joda.time.LocalDate(latestBalance.as[String]("date"))
 		val endDate = startDate.plusYears(5)
-		val startSaldo = latestBalance.as[Double]("value")
+		var saldo = latestBalance.getAs[Double]("value").getOrElse(0.0)
 
-		println("startDate:" + startDate)
-		println("endDate:" + endDate)
-		println("startSaldo:" + startSaldo)
-		
 		val query : DBObject = "from" $gte (startDate : org.joda.time.DateTime) $lte (endDate : org.joda.time.DateTime)
 		
 		val mongoResult = expensesCollection.mapReduce(AnalyzeMapReduce.map, AnalyzeMapReduce.reduce, MapReduceInlineOutput, Some(query))
 		
-		var resultItem : Option[AnalyzeResult] =   if (mongoResult.hasNext) Some(mongoResult.next) else None
-		var saldo : Double = startSaldo
+		val result = new StringBuffer("date,saldo\n")
 		
-		val analyzeResults = new ListBuffer[AnalyzeResult]()
-		
-		val result = new StringBuilder()
-		result append "date" append "," append "saldo" append "\n"
-		
-		for (date <- startDate until endDate) {
-			if ((resultItem isEmpty) || (resultItem.get.date != date))
-			{
-				result append date append "," append saldo append "\n"
-			}
-			else
-			{
-				saldo += resultItem.get.saldo
-				result append date append "," append saldo append "\n"
-				resultItem = if (mongoResult.hasNext) Some(mongoResult.next) else None
-			}
+		for (resultItem <- mongoResult) {
+			dtf.printTo(result, resultItem.as[DateTime]("_id"))
+			saldo += resultItem.as[DBObject]("value").as[Double]("saldo")
+			result append "," append saldo append "\n"
 		}
 
 		//TODO: is a stream possible

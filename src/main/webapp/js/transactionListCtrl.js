@@ -21,10 +21,14 @@ function TransactionListCtrl($xhr) {
     ];
 
 	scope.update = function(query) {
+		$("table.#itemList").fadeOut(function() {
+	
 		if (query == undefined) query = scope.query
 		else scope.query = query
 		$xhr("GET", "rest/expenses/" + query, function(code, response) {
 			scope.transactions = response;
+			$("table.#itemList").fadeIn();
+		});
 		});
 	};
    
@@ -106,6 +110,7 @@ TransactionListCtrl.$inject = ['$xhr'];
  * init document
  */
 $(document).ready(function() {
+	$("body").css("display", "none");
 
 	$("#button-edit-close").click(function() {
 		$('#create-edit-modal').modal('hide')
@@ -132,4 +137,6 @@ $(document).ready(function() {
     })
 	
 	initAngular();
+	
+	$("body").fadeIn();
 });

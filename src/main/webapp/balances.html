@@ -76,10 +76,13 @@
       <div class="row">
 		<div class="span16">
 			
-			<div class="well" style="padding: 8px 8px; text-align: right;">
-				<button class="btn primary" ng:click="create()">create new</button>
-				<button class="btn danger" ng:click="deleteSelected()">delete</button>
-				<button class="btn" ng:click="update()">update</button>
+			<div class="well" style="padding: 8px 8px; height: 28px;">
+				<input class="pull-left" type="test" id="filterText" name="filterText" ng:model="filterText"/>
+				<div class="pull-right">
+					<button class="btn primary" ng:click="create()">create new</button>
+					<button class="btn danger" ng:click="deleteSelected()">delete</button>
+					<button class="btn" ng:click="update()">update</button>
+				</div>
 			</div>
 		
 			<table class="bordered-table zebra-striped">
@@ -91,7 +94,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng:repeat="balance in balances">
+					<tr ng:repeat="balance in balances.$filter(filterText)">
 						<td style="text-align: center; width: 20px"><input type="checkbox" class="balanceSelect" id="{{balance.id}}" name="balance.checked"/></td>
 						<td style="text-align: left">{{balance.date}}</td>
 						<td style="text-align: right">{{balance.value | number:2}}</td>
@@ -103,9 +106,9 @@
 		</div>
       </div>
 
-      <footer class="footer">
+      <!-- <footer class="footer">
         <p>&copy; 2011 by jwstegemann@gmail.com</p>
-      </footer>
+      </footer> -->
 
     </div> <!-- /container -->
 	

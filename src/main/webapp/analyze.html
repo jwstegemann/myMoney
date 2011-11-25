@@ -46,7 +46,7 @@
           <a class="brand" href="#">myMoney</a>
           <ul class="nav">
             <li><a href="transactions.html">transactions</a></li>
-            <li><a href="#">balances</a></li>
+            <li><a href="balances.html">balances</a></li>
             <li class="active"><a href="analyze.html">analyze</a></li>
             <li><a href="#about">about</a></li>
             <li><a href="#contact">contact</a></li>
@@ -62,10 +62,10 @@
 	  <h2>Anlayze this...</h2>
 	  <p>&nbsp;</p>
 	  
-		<!-- messages -->
+		<!-- messages
 		<div id="save-success-msg" class="alert-message success fade in" data-alert="alert" style="display: none;">
 			<p><strong>Well done!</strong> Your new balance has been added.</p>
-		</div>
+		</div> -->
 		
 	  
 	  
@@ -73,9 +73,8 @@
 		<div class="span16">
 			
 			<div class="well" style="padding: 8px 8px; text-align: right;">
-				<button class="btn primary" ng:click="create()">create new</button>
-				<button class="btn danger" ng:click="deleteSelected()">delete</button>
-				<button class="btn" ng:click="update()">update</button>
+				<p>analyzed in <span id="renderedIn">...</span> ms.</p>
+				<!-- <button class="btn primary" ng:click="create()">create new</button> -->
 			</div>
 		
 			<div id="graphdiv" style="width: 920px;"></div>

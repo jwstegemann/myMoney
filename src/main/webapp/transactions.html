@@ -88,15 +88,18 @@
 	  </div>
 	  
       <div class="row">
-		<div class="span16">
+		<div  class="span16">
 			
-			<div class="well" style="padding: 8px 8px; text-align: right;">
-				<button class="btn primary" ng:click="create()">create new</button>
-				<button class="btn danger" ng:click="deleteSelected()">delete</button>
-				<button class="btn" ng:click="update()">update</button>
+			<div class="well" style="padding: 8px 8px; height: 28px;">
+				<input class="pull-left" type="test" id="filterText" name="filterText" ng:model="filterText"/>
+				<div class="pull-right">
+					<button class="btn primary" ng:click="create()">create new</button>
+					<button class="btn danger" ng:click="deleteSelected()">delete</button>
+					<button class="btn" ng:click="update()">update</button>
+				</div>
 			</div>
 		
-			<table class="bordered-table zebra-striped">
+			<table id="itemList" class="bordered-table zebra-striped">
 				<thead>
 					<tr>
 						<th></th>
@@ -107,7 +110,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng:repeat="transaction in transactions">
+					<tr ng:repeat="transaction in transactions.$filter(filterText)">
 						<td style="text-align: center; width: 20px"><input type="checkbox" class="transactionSelect" id="{{transaction.id}}" name="transaction.checked"/></td>
 						<td style="width: 350px" class="pointer" ng:click="edit(transaction.id)">{{transaction.name}}</td>
 						<td style="text-align: right" class="pointer" ng:click="edit(transaction.id)">{{transaction.value | number:2}}</td>
@@ -122,9 +125,10 @@
 		</div>
       </div>
 
-      <footer class="footer">
+<!--      <footer class="footer">
         <p>&copy; 2011 by jwstegemann@gmail.com</p>
       </footer>
+-->
 
     </div> <!-- /container -->
 	

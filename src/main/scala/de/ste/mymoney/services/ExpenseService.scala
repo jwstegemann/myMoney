@@ -7,6 +7,7 @@ import cc.spray.directives._
 import cc.spray.http._
 import cc.spray.http.StatusCodes._
 
+import de.ste.mymoney.MongoComponent
 import de.ste.mymoney.domain._
 import de.ste.mymoney.protocol.MyMoneyJsonProtocol._
 
@@ -20,13 +21,10 @@ import scala.collection.mutable.ListBuffer
 
 
 
-trait ExpenseService extends Directives with SprayJsonSupport {
+trait ExpenseService extends Directives with SprayJsonSupport { this: MongoComponent =>
 
 	RegisterJodaTimeConversionHelpers()
 
-	val mongoCon = MongoConnection("localhost")
-	val expensesCollection : MongoCollection = mongoCon("myMoney")("transactions")
-	
 	val expenseService = {
 		pathPrefix("rest") {
 			pathPrefix("expense") {
@@ -71,14 +69,14 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	 * CRUD - methods
 	 */ 
 	
-	def create(expense : Expense) = {
+	private def create(expense : Expense) = {
 		expense.recurrence match {
 			case Expense.SINGLETON => saveSingletonExpense(expense)
 			case recurrence : Int => saveRecurrentExpense(expense)
 		}
 	}
 	
-	def load(id : String) : Expense = {
+	private def load(id : String) : Expense = {
 		val query : DBObject = MongoDBObject("_id" -> new ObjectId(id))
 
 		expensesCollection.findOne(query) match {
@@ -87,7 +85,7 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		}
 	}
 	
-	def find(queryString : String) = {
+	private def find(queryString : String) = {
 		val queryExists : DBObject = "ref" $exists false
 		println("query: " + queryString)
 		val query = queryString match {
@@ -103,14 +101,14 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 		for { expenseDbo <- cursor.toSeq } yield (expenseDbo : Expense)
 	}
 	
-	def delete(id : String) = {
+	private def delete(id : String) = {
 		//TODO: check if das Element selbst ein ref hat!
 		val query : DBObject = $or(("_id" -> new ObjectId(id)), ("ref" -> id))
 		val writeResult  = expensesCollection.remove(query)
 		if (writeResult.getN == 0) throw new Exception("requested entity could not be deleted")
 	}
 	
-	def update(id : String, expense : Expense) = {
+	private def update(id : String, expense : Expense) = {
 		//TODO: check if das Element selbst ein ref hat!
 		
 		//delete all refs
@@ -141,21 +139,21 @@ trait ExpenseService extends Directives with SprayJsonSupport {
 	 * application-specific methods
 	 */
 	
-	def saveSingletonExpense(expenseDbo : DBObject) : ObjectId = {
+	private def saveSingletonExpense(expenseDbo : DBObject) : ObjectId = {
 		val writeResult = expensesCollection += expenseDbo
 		if (writeResult.getError != null) throw new Exception("Error writing recurrent instances")
 
 		expenseDbo.as[ObjectId]("_id")
 	}
 	
-	def saveRecurrentExpense(expense : Expense) = {
+	private def saveRecurrentExpense(expense : Expense) = {
 		//FIXME: automatische Fortschreibung von Eintragungen ohne Enddatum
 			
 		val refObjectId = saveSingletonExpense(expense)
 		createRecurrentInstances(refObjectId.toString(), expense)
 	}
 	
-	def createRecurrentInstances(refId : String, expense : Expense) = {
+	private def createRecurrentInstances(refId : String, expense : Expense) = {
 		val endDate = expense.to match {
 			case Some(date) => date
 			case None => new LocalDate() + Period.years(5)

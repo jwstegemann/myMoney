@@ -5,25 +5,15 @@ import akka.actor.Supervisor
 import akka.actor.Actor._
 import cc.spray._
 import de.ste.mymoney.services._
+import com.mongodb.casbah.Imports._
 
 
 class Boot {
  
-  val expenseModule = new ExpenseService {
-    // bake your module cake here
-  }
-
-  val balanceModule = new BalanceService {
-    // bake your module cake here
-  }
-
-  val analyzeModule = new AnalyzeService {
-    // bake your module cake here
-  }
-
-  val expenseHttpService = actorOf(new HttpService(expenseModule.expenseService))
-  val balanceHttpService = actorOf(new HttpService(balanceModule.balanceService))
-  val analyzeHttpService = actorOf(new HttpService(analyzeModule.analyzeService))
+  val expenseHttpService = actorOf(new HttpService(AppContext.expenseService))
+  val balanceHttpService = actorOf(new HttpService(AppContext.balanceService))
+  val analyzeHttpService = actorOf(new HttpService(AppContext.analyzeService))
+  
   val rootService = actorOf(new RootService(expenseHttpService, balanceHttpService, analyzeHttpService))
 
   Supervisor(

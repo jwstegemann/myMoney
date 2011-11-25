@@ -28,15 +28,18 @@ $(document).ready(function() {
 			drawPoints: true,
 			labelsDivWidth: 120,
 			labelsDivStyles: {
-					'backgroundColor': 'transparent',
+					'backgroundColor': 'white',
 			},
 			labelsSeparateLines: true,
 			showRangeSelector: true,
 			includeZero: true,
 			digitsAfterDecimal: 2,
 			drawCallback: function() {
-				var elapsed = new Date().getTime() - start;
-				$("#renderedIn").html(elapsed);
+				if (start != undefined) {
+					var elapsed = new Date().getTime() - start;
+					$("#renderedIn").html(elapsed);
+					start = undefined
+				}
 			}
 		}
 	);

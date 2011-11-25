@@ -7,6 +7,7 @@ import cc.spray.directives._
 import cc.spray.http._
 import cc.spray.http.StatusCodes._
 
+import de.ste.mymoney.MongoComponent
 import de.ste.mymoney.domain._
 import de.ste.mymoney.protocol.MyMoneyJsonProtocol._
 
@@ -22,13 +23,9 @@ import org.joda.time.DateTime
 
 
 
-trait AnalyzeService extends Directives {
+trait AnalyzeService extends Directives { this: MongoComponent =>
 
 	RegisterJodaTimeConversionHelpers()
-
-	val mongoCon = MongoConnection("localhost")
-	val expensesCollection : MongoCollection = mongoCon("myMoney")("transactions")
-	val balancesCollection : MongoCollection = mongoCon("myMoney")("balances")
 	
 	val analyzeService = {
 		(path("rest/analyze") & get) { 
@@ -36,9 +33,9 @@ trait AnalyzeService extends Directives {
 		}
 	}
 	
-	val dtf = ISODateTimeFormat.date();
+	private val dtf = ISODateTimeFormat.date();
 	
-	def analyze() = {
+	private def analyze() = {
 		val latestBalanceCursor = balancesCollection.find().sort(MongoDBObject("date" -> -1))
 		if (!latestBalanceCursor.hasNext) throw new Exception("no balance defined yet.")
 		val latestBalance = latestBalanceCursor.next

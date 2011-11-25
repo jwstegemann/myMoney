@@ -50,3 +50,19 @@ function initHighlightTableRow(selector) {
 	});
 }
 
+function sortTable(scope, table, property) {
+	var selectTableHeader = "th#" + table + "\\." + property;
+	
+	if (scope[table].sortProperty == property) {
+		scope[table].sortReverse = !scope[table].sortReverse;
+		var header = $(selectTableHeader)
+		header.removeClass("headerSortUp headerSortDown");
+		header.addClass((scope[table].sortReverse)?"headerSortDown":"headerSortUp");
+	}
+	else {
+		scope[table].sortProperty = property;
+		scope[table].sortReverse = false;
+		$("table#" + table + " th.header").removeClass("headerSortUp headerSortDown");
+		$(selectTableHeader).addClass("headerSortUp");
+	}
+}

@@ -85,16 +85,16 @@
 				</div>
 			</div>
 		
-			<table class="bordered-table zebra-striped">
+			<table id="itemList" class="bordered-table zebra-striped">
 				<thead>
 					<tr>
 						<th></th>
-						<th>date</th>
-						<th>value</th>
+						<th id="itemList.date" class="header headerSortUp" ng:click="sort('itemList','date')">date</th>
+						<th id="itemList.value" class="header" ng:click="sort('itemList','value')">value</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng:repeat="balance in balances.$filter(filterText)">
+					<tr ng:repeat="balance in balances.$filter(filterText).$orderBy(itemList.sortProperty,itemList.sortReverse)">
 						<td style="text-align: center; width: 20px"><input type="checkbox" class="balanceSelect" id="{{balance.id}}" name="balance.checked"/></td>
 						<td style="text-align: left">{{balance.date}}</td>
 						<td style="text-align: right">{{balance.value | number:2}}</td>

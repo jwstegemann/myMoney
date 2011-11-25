@@ -103,14 +103,14 @@
 				<thead>
 					<tr>
 						<th></th>
-						<th>name</th>
-						<th>value</th>
-						<th>from-date</th>
-						<th>to-date</th>
+						<th id="itemList.name" class="header headerSortUp" ng:click="sort('itemList','name')">name</th>
+						<th id="itemList.value" class="header" ng:click="sort('itemList','value')">value</th>
+						<th id="itemList.from" class="header" ng:click="sort('itemList','from')">from-date</th>
+						<th id="itemList.to" class="header" ng:click="sort('itemList','to')">to-date</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng:repeat="transaction in transactions.$filter(filterText)">
+					<tr ng:repeat="transaction in transactions.$filter(filterText).$orderBy(itemList.sortProperty,itemList.sortReverse)">
 						<td style="text-align: center; width: 20px"><input type="checkbox" class="transactionSelect" id="{{transaction.id}}" name="transaction.checked"/></td>
 						<td style="width: 350px" class="pointer" ng:click="edit(transaction.id)">{{transaction.name}}</td>
 						<td style="text-align: right" class="pointer" ng:click="edit(transaction.id)">{{transaction.value | number:2}}</td>

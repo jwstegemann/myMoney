@@ -6,6 +6,9 @@ function BalancesCtrl($xhr) {
 	$xhr.defaults.headers.post['Content-Type']='application/json'
 
 	var scope = this;
+	scope.itemList = {};
+	scope.itemList.sortProperty = "date";
+	scope.itemList.sortReverse = false;
 	
 	/*
 	 * Validation expressions
@@ -60,6 +63,10 @@ function BalancesCtrl($xhr) {
 				showMsg("#save-error-msg");
 			}
 		);
+	}
+
+	scope.sort = function(table,property) {
+		sortTable(scope, table, property);
 	}
 	
 	/*
